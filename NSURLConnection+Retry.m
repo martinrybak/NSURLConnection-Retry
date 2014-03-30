@@ -25,13 +25,23 @@ static NSTimeInterval const NSURLConnectionDefaultTimeoutInterval = 5.0;
 
 + (void)sendAsynchronousRequest:(NSURLRequest*)request queue:(NSOperationQueue*)queue retryCount:(NSUInteger)retryCount waitInterval:(NSTimeInterval)waitInterval timeoutInterval:(NSTimeInterval)timeoutInterval completionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))handler
 {
+	//Request timeout cannot be longer than connection timeout
+	if (request.timeoutInterval > timeoutInterval) {
+		NSMutableURLRequest* mutableRequest = [request mutableCopy];
+		mutableRequest.timeoutInterval = timeoutInterval;
+		request = [mutableRequest copy];
+	}
+	
 	NSDate* start = [NSDate date];
 	[self sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse* response, NSData* data, NSError* connectionError) {
 	
 		//Check for connection error
-		//-1009 = connection offline
-		//-1001 = request timed out (in case the NSURLRequest has a shorter timeoutInterval than the timeoutInterval parameter)
-		if (connectionError.code == -1009 || connectionError.code == -1001) {
+		if (connectionError.code == kCFURLErrorTimedOut ||
+			connectionError.code == kCFURLErrorCannotFindHost ||
+			connectionError.code == kCFURLErrorCannotConnectToHost ||
+			connectionError.code == kCFURLErrorNetworkConnectionLost ||
+			connectionError.code == kCFURLErrorDNSLookupFailed ||
+			connectionError.code == kCFURLErrorNotConnectedToInternet) {
 			
 			//If there are retries left and the timeout hasn't been reached, try again
 			if (retryCount > 0 && timeoutInterval > 0.0) {
