@@ -38,10 +38,10 @@ static NSTimeInterval const NSURLConnectionDefaultWaitInterval = 1.0;
 			connectionError.code == kCFURLErrorNotConnectedToInternet) {
 			
 			//If the timeout hasn't been reached, try again
-			if (timeoutInterval > 0.0) {
+            NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:start];
+            NSTimeInterval timeoutLeft = MAX(timeoutInterval - elapsed, 0.0);
+            if (timeoutLeft > 0.0) {
 				[self bk_performBlock:^{
-					NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:start];
-					NSTimeInterval timeoutLeft = MAX(timeoutInterval - elapsed, 0.0);
 					NSLog(@"Connection failed, waiting %f seconds and trying until timeout in %f seconds", waitInterval, timeoutLeft);
 					[self sendAsynchronousRequest:request queue:queue waitInterval:waitInterval timeoutInterval:timeoutLeft completionHandler:handler];
 				} afterDelay:waitInterval];
