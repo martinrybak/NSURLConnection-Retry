@@ -29,13 +29,8 @@ static NSTimeInterval const NSURLConnectionDefaultWaitInterval = 1.0;
 	NSDate* start = [NSDate date];
 	[self sendAsynchronousRequest:mutableRequest queue:queue completionHandler:^(NSURLResponse* response, NSData* data, NSError* connectionError) {
 		
-		//Check for connection error
-		if (connectionError.code == kCFURLErrorTimedOut ||
-			connectionError.code == kCFURLErrorCannotFindHost ||
-			connectionError.code == kCFURLErrorCannotConnectToHost ||
-			connectionError.code == kCFURLErrorNetworkConnectionLost ||
-			connectionError.code == kCFURLErrorDNSLookupFailed ||
-			connectionError.code == kCFURLErrorNotConnectedToInternet) {
+		//Check for connection error other than no internet connection
+		if (connectionError && connectionError.code != kCFURLErrorNotConnectedToInternet) {
 			
 			//If the timeout hasn't been reached, try again
             NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:start];
