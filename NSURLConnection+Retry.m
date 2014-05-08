@@ -35,9 +35,10 @@ static NSTimeInterval const NSURLConnectionDefaultWaitInterval = 1.0;
 			//If the timeout hasn't been reached, try again
             NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:start];
             NSTimeInterval timeoutLeft = MAX(timeoutInterval - elapsed, 0.0);
+			NSLog(@"[NSURLConnection+Retry] Connection failed after %f seconds", elapsed);
             if (timeoutLeft > 0.0) {
 				[NSObject bk_performBlock:^{
-					NSLog(@"Connection failed, waiting %f seconds and trying until timeout in %f seconds", waitInterval, timeoutLeft - waitInterval);
+					NSLog(@"[NSURLConnection+Retry] Waiting %f seconds and trying until timeout in %f seconds", waitInterval, timeoutLeft - waitInterval);
 					[self sendAsynchronousRequest:request queue:queue waitInterval:waitInterval timeoutInterval:timeoutLeft - waitInterval completionHandler:handler];
 				} afterDelay:waitInterval];
 				return;
