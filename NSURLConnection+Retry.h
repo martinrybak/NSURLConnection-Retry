@@ -11,5 +11,6 @@
 
 + (void)sendAsynchronousRequest:(NSURLRequest*)request queue:(NSOperationQueue*)queue timeoutInterval:(NSTimeInterval)timeoutInterval completionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))handler;
 + (void)sendAsynchronousRequest:(NSURLRequest*)request queue:(NSOperationQueue*)queue waitInterval:(NSTimeInterval)waitInterval timeoutInterval:(NSTimeInterval)timeoutInterval completionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))handler;
++ (void)sendAsynchronousRequest:(NSURLRequest*)request queue:(NSOperationQueue*)queue waitInterval:(NSTimeInterval)waitInterval timeoutInterval:(NSTimeInterval)timeoutInterval abortCodes:(NSArray*)abortCodes completionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))handler;
 
 @end

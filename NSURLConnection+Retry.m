@@ -8,7 +8,7 @@
 #import "NSURLConnection+Retry.h"
 #import "NSObject+BKBlockExecution.h"
 
-static NSTimeInterval const NSURLConnectionDefaultWaitInterval = 1.0;
+NSTimeInterval const NSURLConnectionDefaultWaitInterval = 1.0;
 
 @implementation NSURLConnection (Retry)
 
@@ -18,6 +18,14 @@ static NSTimeInterval const NSURLConnectionDefaultWaitInterval = 1.0;
 }
 
 + (void)sendAsynchronousRequest:(NSURLRequest*)request queue:(NSOperationQueue*)queue waitInterval:(NSTimeInterval)waitInterval timeoutInterval:(NSTimeInterval)timeoutInterval completionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))handler
+{
+	NSArray* abortCodes = @[
+		@(kCFURLErrorNotConnectedToInternet)
+	];
+	return [self sendAsynchronousRequest:request queue:queue waitInterval:waitInterval timeoutInterval:timeoutInterval abortCodes:abortCodes completionHandler:handler];
+}
+
++ (void)sendAsynchronousRequest:(NSURLRequest*)request queue:(NSOperationQueue*)queue waitInterval:(NSTimeInterval)waitInterval timeoutInterval:(NSTimeInterval)timeoutInterval abortCodes:(NSArray*)abortCodes completionHandler:(void (^)(NSURLResponse* response, NSData* data, NSError* connectionError))handler
 {
 	NSMutableURLRequest* mutableRequest = [request mutableCopy];
 	
@@ -29,8 +37,8 @@ static NSTimeInterval const NSURLConnectionDefaultWaitInterval = 1.0;
 	NSDate* start = [NSDate date];
 	[self sendAsynchronousRequest:mutableRequest queue:queue completionHandler:^(NSURLResponse* response, NSData* data, NSError* connectionError) {
 		
-		//Check for connection error other than no internet connection
-		if (connectionError && connectionError.code != kCFURLErrorNotConnectedToInternet) {
+		//If there is an error and it's not in the abort list
+		if (connectionError && ![abortCodes containsObject:@(connectionError.code)]) {
 			
 			//If the timeout hasn't been reached, try again
             NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:start];
